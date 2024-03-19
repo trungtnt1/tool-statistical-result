@@ -1,0 +1,15 @@
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/cache/ruby/2.7.0/gems/stringio-3.1.0/ext/stringio
+/home/trungtnt/.rbenv/versions/2.7.7/bin/ruby -I /home/trungtnt/.rbenv/versions/2.7.7/lib/ruby/2.7.0 -r ./siteconf20240314-64343-594cpv.rb extconf.rb
+creating Makefile
+
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/cache/ruby/2.7.0/gems/stringio-3.1.0/ext/stringio
+make "DESTDIR=" clean
+
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/cache/ruby/2.7.0/gems/stringio-3.1.0/ext/stringio
+make "DESTDIR="
+compiling stringio.c
+linking shared-object stringio.so
+
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/cache/ruby/2.7.0/gems/stringio-3.1.0/ext/stringio
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 stringio.so ./.gem.20240314-64343-muer0r

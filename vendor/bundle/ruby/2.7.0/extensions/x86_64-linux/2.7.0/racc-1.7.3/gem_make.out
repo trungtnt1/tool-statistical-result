@@ -1,0 +1,15 @@
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/bundle/ruby/2.7.0/gems/racc-1.7.3/ext/racc/cparse
+/home/trungtnt/.rbenv/versions/2.7.7/bin/ruby -I /home/trungtnt/.rbenv/versions/2.7.7/lib/ruby/2.7.0 -r ./siteconf20240314-53367-1vjt4sc.rb extconf.rb
+creating Makefile
+
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/bundle/ruby/2.7.0/gems/racc-1.7.3/ext/racc/cparse
+make "DESTDIR=" clean
+
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/bundle/ruby/2.7.0/gems/racc-1.7.3/ext/racc/cparse
+make "DESTDIR="
+compiling cparse.c
+linking shared-object racc/cparse.so
+
+current directory: /home/trungtnt/Desktop/Project/tool-statistical-result/vendor/bundle/ruby/2.7.0/gems/racc-1.7.3/ext/racc/cparse
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 cparse.so ./.gem.20240314-53367-wl3x4d/racc
