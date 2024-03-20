@@ -44,6 +44,7 @@ group :development, :test do
   gem 'pry-rails'
   gem 'mysql2'
   gem 'rake', '~> 13.1'
+  gem 'will_paginate', '~> 3.0'
 end
 
 group :development do

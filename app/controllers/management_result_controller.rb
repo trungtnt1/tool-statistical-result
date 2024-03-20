@@ -2,11 +2,22 @@ class ManagementResultController < ApplicationController
   include ActiveModel::Serialization
 
   def index
-    @results = Lottery.all
+    total = Lottery.count 
+    page = params[:page].present? && params[:page].is_a?(Numeric) ? params[:page] : 1
+    per_page = params[:page].present? && params[:page].is_a?(Numeric) ? params[:per_page] : total
+    @results = Lottery.all.paginate(
+      :page => page, 
+      :per_page => per_page
+    )
     render json: { 
       status: 200, 
       msg: "Get data successfully", 
-      data: ActiveModel::Serializer::CollectionSerializer.new(@results, each_serializer: LotterySerializer) 
+      data: ActiveModel::Serializer::CollectionSerializer.new(@results, each_serializer: LotterySerializer),
+      pages: {
+        page: page,
+        per_page: per_page,
+        total_items: total
+      }
     }
   end
 
