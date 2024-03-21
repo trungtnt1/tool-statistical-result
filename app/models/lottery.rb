@@ -10,7 +10,9 @@ class Lottery < ApplicationRecord
   validates :lottery_period, presence: true, uniqueness: true
   validates :number_of_spins_per_week, presence: true, numericality: true
   
-  validate :is_date, :ball_extra, :value_balls_not_overlaps, :value_balls_not_accepted, :check_status
+  validate :is_date, :ball_extra, :value_balls_not_overlaps, :value_balls_not_accepted, :check_status, 
+  :check_period_draw
+
 
   private
 
@@ -59,9 +61,22 @@ class Lottery < ApplicationRecord
     unless status == JACKPOT_6_55 || status == JACKPOT_6_45
       errors.add(:base, "The status is not accepted")
     end  
+  end 
+  
+  # Check period draw accepted
+  def check_period_draw
+    unless [DRAW_BEGINING_WEEK, DRAW_BETWEEN_WEEK, DRAW_END_WEEK].include?(number_of_spins_per_week)
+      errors.add(:base, "The period draw in week is not valid")
+    end 
   end  
   
   # Constants
+
+  # Type
   JACKPOT_6_55 = 55
   JACKPOT_6_45 = 45
+  #Period draw
+  DRAW_BEGINING_WEEK = 1
+  DRAW_BETWEEN_WEEK = 2
+  DRAW_END_WEEK = 3
 end

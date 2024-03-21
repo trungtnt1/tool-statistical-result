@@ -41,10 +41,37 @@ class ManagementResultController < ApplicationController
       rescue StandardError => e
         logger.error e.message
         e.backtrace.each { |line| logger.error line }
+  end
+  
+  def getRateStatistics
+    data = getNumbersOccurrence
+    render json: { data: data }
   end  
 
   private
   
+  def getNumbersOccurrence
+    numbers = Lottery.select("value, COUNT(*) AS count")
+    .from("(SELECT lottery_ball_1 AS value FROM lottery_managerments
+           UNION ALL SELECT lottery_ball_2 FROM lottery_managerments
+           UNION ALL SELECT lottery_ball_3 FROM lottery_managerments
+           UNION ALL SELECT lottery_ball_4 FROM lottery_managerments
+           UNION ALL SELECT lottery_ball_5 FROM lottery_managerments
+           UNION ALL SELECT lottery_ball_6 FROM lottery_managerments
+           UNION ALL SELECT lottery_ball_extra FROM lottery_managerments 
+           WHERE lottery_ball_extra IS NOT NULL) AS all_values")
+    .group("value")
+    .having("COUNT(*) > 1")
+    .order("count DESC")
+    .limit(params[:limit])
+
+    formatted_results = numbers.map do |result|
+      value = result.value
+      occurrence_count = result.count
+      { value: value, occurrence_count: occurrence_count }
+    end
+  end  
+
   def lottery_params
     params.permit(:lottery_ball_1,:lottery_ball_2,:lottery_ball_3,:lottery_ball_4,:lottery_ball_5,:lottery_ball_6, 
       :lottery_ball_extra, :status, :lottery_period, :number_of_spins_per_week)
