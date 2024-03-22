@@ -13,6 +13,8 @@ class Lottery < ApplicationRecord
   validate :is_date, :ball_extra, :value_balls_not_overlaps, :value_balls_not_accepted, :check_status, 
   :check_period_draw
 
+  validate :typeJacpot, :limit, :draw_week
+
 
   private
 
@@ -68,7 +70,8 @@ class Lottery < ApplicationRecord
     unless [DRAW_BEGINING_WEEK, DRAW_BETWEEN_WEEK, DRAW_END_WEEK].include?(number_of_spins_per_week)
       errors.add(:base, "The period draw in week is not valid")
     end 
-  end  
+  end
+  
   
   # Constants
 
