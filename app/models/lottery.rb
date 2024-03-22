@@ -13,9 +13,6 @@ class Lottery < ApplicationRecord
   validate :is_date, :ball_extra, :value_balls_not_overlaps, :value_balls_not_accepted, :check_status, 
   :check_period_draw
 
-  validate :typeJacpot, :limit, :draw_week
-
-
   private
 
   def is_date
