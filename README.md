@@ -35,9 +35,12 @@ Api
         number_of_spins_per_week: Number 1 -> 3
       }
   - Api post get statistics  "/get-statistics"
-    In postman we will post params as follows:
+    In postman we will post params as follows. The above parameters to search for numbers depend on the conditions to get the correct ratio
       body 
       {
-        limit: 10
+        limit: 10 (Limit data)
+        type: 45 or 55 (Find status)
+        draw_week: 1 -> 3 (Find number_of_spins_per_week)
       }
-      return list numbers data highest occurrence  
+      
+      Return list numbers data highest occurrence 
