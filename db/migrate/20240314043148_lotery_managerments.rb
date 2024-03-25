@@ -1,6 +1,6 @@
 class LoteryManagerments < ActiveRecord::Migration[7.1]
   def change
-    create_table :lottery_managerments do |t|
+    create_table :lottery_managements do |t|
       t.integer :lottery_ball_1, :null => false, comment: 'value 1->55'
       t.integer :lottery_ball_2, :null => false, comment: 'value 1->55'
       t.integer :lottery_ball_3, :null => false, comment: 'value 1->55'

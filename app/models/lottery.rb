@@ -1,4 +1,5 @@
 class Lottery < ApplicationRecord
+  require 'date'
   self.table_name = "lottery_managerments"
   validates :lottery_ball_1, numericality: true, presence: true
   validates :lottery_ball_2, numericality: true, presence: true
@@ -11,14 +12,14 @@ class Lottery < ApplicationRecord
   validates :number_of_spins_per_week, presence: true, numericality: true
   
   validate :is_date, :ball_extra, :value_balls_not_overlaps, :value_balls_not_accepted, :check_status, 
-  :check_period_draw
+  :check_period_draw, :check_date_valid
 
   private
 
   def is_date
     if lottery_period.present? && !lottery_period.is_a?(Date)
       errors.add(:lottery_period, "must be a valid date and must be a format yyyy-mm-dd")
-    end
+    end   
   end
 
   # Value ball extra require when status = 6/55
@@ -68,15 +69,23 @@ class Lottery < ApplicationRecord
       errors.add(:base, "The period draw in week is not valid")
     end 
   end
-  
+
+  def check_date_valid
+    if lottery_period.present? && Date.today < lottery_period 
+      errors.add(:lottery_period, "The jackpot drawing date is a date in the past or present, not the future")
+    end   
+  end    
   
   # Constants
 
   # Type
   JACKPOT_6_55 = 55
   JACKPOT_6_45 = 45
-  #Period draw
+  # Period draw
   DRAW_BEGINING_WEEK = 1
   DRAW_BETWEEN_WEEK = 2
   DRAW_END_WEEK = 3
+  # Have query 
+  USE_HAVE_QUERIES = 1,
+  NOT_USE_QUERY = 0
 end
