@@ -1,6 +1,5 @@
 class ManagementResultController < ApplicationController
   include ActiveModel::Serialization
-
   def index
     total = Lottery.count 
     page = params[:page].present? && params[:page].is_a?(Numeric) ? params[:page] : 1
@@ -49,6 +48,24 @@ class ManagementResultController < ApplicationController
       convertParams(params[:draw_week]))
     data = getNumbersOccurrence(conditions)
     render json: { data: data }
+  end
+  
+  def generateLuckyDraw
+    if !(params[:status] == Lottery::JACKPOT_6_55 || params[:status] == Lottery::JACKPOT_6_45)
+      render json: {
+        msg: 'Wrong params !'
+      }
+    else   
+      if !params[:type] && !params[:draw_week]
+        luckyNumber = randomNumber(params[:status])
+      else
+        luckyNumber = [1,2,3,4,5,6]
+      end  
+      render json: {
+        data: luckyNumber,
+        msg: 'Good luck with your lucky numbers !'
+      }
+    end    
   end  
 
   private
@@ -105,6 +122,27 @@ class ManagementResultController < ApplicationController
   def convertParams(param)
     convert = param.to_i
     convert.is_a?(Numeric) && convert > 0 ? convert : nil
+  end 
+  
+  def randomNumber(kind)
+    luckyNumbers = []
+  
+    if kind.to_i == Lottery::JACKPOT_6_45
+      range = Lottery::JACKPOT_6_45
+    else
+      range = Lottery::JACKPOT_6_55
+    end
+    
+    while luckyNumbers.length < 6
+      random_number = rand(1..range)
+      unless luckyNumbers.include?(random_number)
+        luckyNumbers << random_number
+      end
+    end
+
+    puts luckyNumbers.sort!
+
+    return luckyNumbers
   end  
 
   def lottery_params
