@@ -51,26 +51,38 @@ class ManagementResultController < ApplicationController
   end
   
   def generateLuckyDraw
-    if !(params[:status] == Lottery::JACKPOT_6_55 || params[:status] == Lottery::JACKPOT_6_45)
+    if !(convertParams(params[:type]) == Lottery::JACKPOT_6_55 || convertParams(params[:type]) == Lottery::JACKPOT_6_45)
       render json: {
         msg: 'Wrong params !'
       }
     else   
-      if !params[:type] && !params[:draw_week]
-        luckyNumber = randomNumber(params[:status])
-      else
-        luckyNumber = [1,2,3,4,5,6]
-      end  
+      luckyNumber = randomNumber(params[:type])
       render json: {
         data: luckyNumber,
         msg: 'Good luck with your lucky numbers !'
       }
     end    
+  end
+  
+  def generateLuckyDrawRule
+    conditions = handleConditions(
+      convertParams(params[:type]), 
+      convertParams(params[:draw_week]))
+    listNumbers = getNumbersOccurrence(conditions).map { |obj| obj[:value] }
+    randomLuckyDraw = listNumbers.sample(6)
+    render json: 
+    {
+      data: randomLuckyDraw,
+      msg: 'Good luck with your lucky numbers !'
+    }
   end  
 
   private
   
   def getNumbersOccurrence(conditions)
+    frequency = params[:frequency].present? && convertParams(params[:frequency]) > 0 ? 
+      convertParams(params[:frequency]) : 2
+    limitData = params[:limit].present? && convertParams(params[:limit]) > 0 ? params[:limit] : nil
     
     numbers = Lottery.select("value, COUNT(*) AS count")
     .from("(SELECT lottery_ball_1 AS value FROM lottery_managerments WHERE #{conditions}
@@ -83,9 +95,9 @@ class ManagementResultController < ApplicationController
            WHERE lottery_ball_extra IS NOT NULL AND #{conditions}
            ) AS all_values")
     .group("value")
-    .having("COUNT(*) > 1")
+    .having("COUNT(*) >= ?",frequency)
     .order("count DESC")
-    .limit(params[:limit].present? && params[:limit].is_a?(Numeric) ? params[:limit] : nil)
+    .limit(limitData)
     
     if numbers.empty? 
       {
@@ -124,10 +136,10 @@ class ManagementResultController < ApplicationController
     convert.is_a?(Numeric) && convert > 0 ? convert : nil
   end 
   
-  def randomNumber(kind)
+  def randomNumber(type)
     luckyNumbers = []
   
-    if kind.to_i == Lottery::JACKPOT_6_45
+    if type.to_i == Lottery::JACKPOT_6_45
       range = Lottery::JACKPOT_6_45
     else
       range = Lottery::JACKPOT_6_55
