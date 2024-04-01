@@ -44,3 +44,14 @@ Api
       }
       
       Return list numbers data highest occurrence 
+
+- Api post "Get random list number lottery" => "/get-lucky-number"
+  body {
+    type: 45 or 55 (Find status)
+  }
+- Api post "Get random list number follow data query" => "/get-lucky-number-follow-rules"
+  body {
+    type: 45 or 55 (Find status)
+    draw_week: 1 -> 3 (Find number_of_spins_per_week)
+    limit data: Number
+  }        
