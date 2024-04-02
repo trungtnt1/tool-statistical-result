@@ -57,6 +57,12 @@ class ManagementResultController < ApplicationController
       }
     else   
       luckyNumber = randomNumber(params[:type])
+      obj = {
+        result: luckyNumber.to_json,
+        jackpot_type: convertParams(params[:type]) == Lottery::JACKPOT_6_55 ? "Jackpot 6/55" : "Jackpot 6/45"
+      }
+      @generateNumber = GenerateNumber.new(obj)
+      @generateNumber.save
       render json: {
         data: luckyNumber,
         msg: 'Good luck with your lucky numbers !'
@@ -65,23 +71,45 @@ class ManagementResultController < ApplicationController
   end
   
   def generateLuckyDrawRule
-    conditions = handleConditions(
-      convertParams(params[:type]), 
-      convertParams(params[:draw_week]))
-    listNumbers = getNumbersOccurrence(conditions).map { |obj| obj[:value] }
-    randomLuckyDraw = listNumbers.sample(6)
-    render json: 
-    {
-      data: randomLuckyDraw,
-      msg: 'Good luck with your lucky numbers !'
-    }
+    if !(convertParams(params[:type]) == Lottery::JACKPOT_6_55 || convertParams(params[:type]) == Lottery::JACKPOT_6_45)
+      render json: {
+        msg: 'Wrong params !'
+      }
+    else   
+      conditions = handleConditions(
+        convertParams(params[:type]), 
+        convertParams(params[:draw_week]))
+        
+        if getNumbersOccurrence(conditions).empty?
+          render json: 
+          {
+            msg: 'Data not found', 
+            status: 404,
+          }
+        else
+          listNumbers = getNumbersOccurrence(conditions).map { |obj| obj[:value] }
+          randomLuckyDraw = listNumbers.sample(6)
+          obj = {
+            result: randomLuckyDraw.to_json,
+            jackpot_type: convertParams(params[:type]) == Lottery::JACKPOT_6_55 ? "Jackpot 6/55" : "Jackpot 6/45"
+          }
+          @generateNumber = GenerateNumber.new(obj)
+          @generateNumber.save
+          render json: 
+          {
+            data: randomLuckyDraw,
+            msg: 'Good luck with your lucky numbers !',
+            status: 200
+          }
+        end
+    end
   end  
 
   private
   
   def getNumbersOccurrence(conditions)
     frequency = params[:frequency].present? && convertParams(params[:frequency]) > 0 ? 
-      convertParams(params[:frequency]) : 2
+      convertParams(params[:frequency]) : 2  
     limitData = params[:limit].present? && convertParams(params[:limit]) > 0 ? params[:limit] : nil
     
     numbers = Lottery.select("value, COUNT(*) AS count")
@@ -100,10 +128,7 @@ class ManagementResultController < ApplicationController
     .limit(limitData)
     
     if numbers.empty? 
-      {
-        msg: 'Data not found',
-        status: 404
-      }
+      {}
     else
       formatted_results = numbers.map do |result|
         value = result.value
