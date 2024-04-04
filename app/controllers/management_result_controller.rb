@@ -4,7 +4,7 @@ class ManagementResultController < ApplicationController
     total = Lottery.count 
     page = params[:page].present? && params[:page].is_a?(Numeric) ? params[:page] : 1
     per_page = params[:page].present? && params[:page].is_a?(Numeric) ? params[:per_page] : total
-    @results = Lottery.all.paginate(
+    @results = Lottery.order(id: :desc).all.paginate(
       :page => page, 
       :per_page => per_page
     )
@@ -103,7 +103,72 @@ class ManagementResultController < ApplicationController
           }
         end
     end
-  end  
+  end 
+  
+  def compareResultJackpot
+    drawing = Lottery.where(lottery_period: params[:date]).first
+    if !drawing.blank? && (
+      convertParams(params[:type]) == Lottery::JACKPOT_6_55 || convertParams(params[:type]) == Lottery::JACKPOT_6_45)
+      if convertParams(params[:type]) == Lottery::JACKPOT_6_55
+        generateData = GenerateNumber.where(
+          "created_at LIKE ? OR created_at LIKE ?",
+          "%#{drawing.lottery_period}%",
+          "%#{drawing.lottery_period.prev_day}%"
+        ).where(jackpot_type: "Jackpot 6/55" )
+      else
+        generateData = GenerateNumber.where(
+          "created_at LIKE ?",
+          "%#{drawing.lottery_period}%"
+        ).where(jackpot_type: "Jackpot 6/45")
+      end  
+      generateResults = generateData.map { |item| item[:result] }
+      resultJackpot = []
+      resultJackpot.push(
+        drawing.lottery_ball_1,
+        drawing.lottery_ball_2,
+        drawing.lottery_ball_3,
+        drawing.lottery_ball_4,
+        drawing.lottery_ball_5,
+        drawing.lottery_ball_6
+      )
+      generateResults.map! {|r| r.scan(/\d+/).map(&:to_i) }
+      
+      count = Hash.new(0)
+      generateResults.each do |subArray|
+        subArray.each do |num|
+          count[num] += 1 if resultJackpot.include?(num)
+        end
+      end
+      resultMatch = []
+      generateResults.each_with_index do |subArray, index|
+        countInJackpot = 0
+        subArray.each do |num|
+          countInJackpot += 1 if count[num] >= 3
+        end
+        resultMatch << index if countInJackpot >= 3
+      end
+      ticketPrizes = resultMatch.map { |index| { ticket: generateResults[index] }}
+      if ticketPrizes.blank?
+        render json: {
+          data: ticketPrizes,
+          msg: 'You have no ticket win prize',
+          status: 200
+        }
+      else
+        render json: {
+          data: ticketPrizes,
+          msg: "You have #{ticketPrizes.count} #{ticketPrizes.count > 1 ? 'tickets' : 'ticket'} win prize",
+          status: 200
+        }
+      end    
+    else  
+      render json: {
+        data: '',
+        msg: 'The corresponding draw date could not be found',
+        status: 404
+      }
+    end  
+  end   
 
   private
   
@@ -177,12 +242,12 @@ class ManagementResultController < ApplicationController
       end
     end
 
-    puts luckyNumbers.sort!
+    puts luckyNumbers.sort
 
     return luckyNumbers
   end  
 
-  def lottery_params
+  def lottery_params 
     params.permit(:lottery_ball_1,:lottery_ball_2,:lottery_ball_3,:lottery_ball_4,:lottery_ball_5,:lottery_ball_6, 
       :lottery_ball_extra, :status, :lottery_period, :number_of_spins_per_week)
   end
