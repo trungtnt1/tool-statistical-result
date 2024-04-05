@@ -59,7 +59,8 @@ class ManagementResultController < ApplicationController
       luckyNumber = randomNumber(params[:type])
       obj = {
         result: luckyNumber.to_json,
-        jackpot_type: convertParams(params[:type]) == Lottery::JACKPOT_6_55 ? "Jackpot 6/55" : "Jackpot 6/45"
+        jackpot_type: convertParams(params[:type]) == Lottery::JACKPOT_6_55 ? "Jackpot 6/55" : "Jackpot 6/45",
+        status: Lottery::NOT_USE_QUERY
       }
       @generateNumber = GenerateNumber.new(obj)
       @generateNumber.save
@@ -88,11 +89,12 @@ class ManagementResultController < ApplicationController
           }
         else
           listNumbers = getNumbersOccurrence(conditions).map { |obj| obj[:value] }
-          randomLuckyDraw = listNumbers.sample(6)
+          randomLuckyDraw = listNumbers.sample(6).sort
           obj = {
             result: randomLuckyDraw.to_json,
-            jackpot_type: convertParams(params[:type]) == Lottery::JACKPOT_6_55 ? "Jackpot 6/55" : "Jackpot 6/45"
-          }
+            jackpot_type: convertParams(params[:type]) == Lottery::JACKPOT_6_55 ? "Jackpot 6/55" : "Jackpot 6/45",
+            status: Lottery::USE_HAVE_QUERIES
+          }        
           @generateNumber = GenerateNumber.new(obj)
           @generateNumber.save
           render json: 
@@ -241,10 +243,8 @@ class ManagementResultController < ApplicationController
         luckyNumbers << random_number
       end
     end
-
-    puts luckyNumbers.sort
-
-    return luckyNumbers
+    
+    return luckyNumbers.sort
   end  
 
   def lottery_params 

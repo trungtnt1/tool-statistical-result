@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_04_02_070690) do
+ActiveRecord::Schema[7.1].define(version: 2024_04_05_023539) do
   create_table "generate_numbers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "result"
     t.string "jackpot_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "status", default: 1
   end
 
   create_table "lottery_managerments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

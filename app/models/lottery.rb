@@ -86,6 +86,6 @@ class Lottery < ApplicationRecord
   DRAW_BETWEEN_WEEK = 2
   DRAW_END_WEEK = 3
   # Have query 
-  USE_HAVE_QUERIES = 1,
+  USE_HAVE_QUERIES = 1
   NOT_USE_QUERY = 0
 end
